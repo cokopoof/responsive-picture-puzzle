@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+  body {
+    display: flex;
+    align-items: center;
+    height: 97vh;
+    background: #333;
+  }
+  #container {
+    display: grid;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    grid-gap: 5px;
+  }
+  .piece {
+    background-color: black;
+    background-repeat: no-repeat;
+  }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+  <script>
+  const Container = document.getElementById('container');
+  const puzzleImages = [
+    {
+    src: 'https://cdn2.vectorstock.com/i/1000x1000/44/26/background-with-night-butterflies-vector-20494426.jpg',
+    ratio: function() {
+      let img = document.createElement('img');
+      img.src = this.src;
+      return (Container.clientWidth / img.width);
+    },
+    width: function() {
+      return Container.clientWidth;
+    },
+    height: function() {
+      let img = document.createElement('img');
+      img.src = this.src;
+      return this.ratio() * img.height;
+    }},
+    {
+    src: 'https://www.myyosemitepark.com/.image/t_share/MTQ3OTg4NjE5NjM0MTU3MDIz/ca-redwood-forest_dp_680.jpg',
+    ratio: function() {
+      let img = document.createElement('img');
+      img.src = this.src;
+      return (Container.clientWidth / img.width);
+    },
+    width: function() {
+      return Container.clientWidth;
+    },
+    height: function() {
+      let img = document.createElement('img');
+      img.src = this.src;
+      return this.ratio() * img.height;
+    }},
+    {
+    src: 'https://cdn2.vectorstock.com/i/1000x1000/44/26/background-with-night-butterflies-vector-20494426.jpg',
+    ratio: function() {
+      let img = document.createElement('img');
+      img.src = this.src;
+      return (Container.clientWidth / img.width);
+    },
+    width: function() {
+      return Container.clientWidth;
+    },
+    height: function() {
+      let img = document.createElement('img');
+      img.src = this.src;
+      return this.ratio * img.height;
+    }}
+  ];
+  generatePieces();
+  window.addEventListener('resize', layPieces);
+  function generatePieces(event = null, cols = 4, rows = 3, imageInd = 1) {
+    for(let i = 0; cols * rows > i; i++) {
+       let childP = document.createElement('div');
+       childP.id = ("piece-" + i);
+       childP.classList.add('piece');
+       Container.appendChild(childP);
+    }
+    layPieces(event, cols, rows, imageInd);
+  }
+  function layPieces(event= null, cols = 4, rows = 3, imageInd = 1) {
+
+    let colWidth = Container.clientWidth / cols,
+        colOffset = parseFloat(window.getComputedStyle(document.getElementById('container'), null).getPropertyValue('grid-column-gap').replace(/[^0-9.]/g, '')),
+        rowHeight = puzzleImages[imageInd].height() / rows,
+        rowOffset = parseFloat(window.getComputedStyle(document.getElementById('container'), null).getPropertyValue('grid-row-gap').replace(/[^0-9.]/g, ''));
+    console.log(colWidth, rowHeight);
+
+   Container.style.gridTemplateColumns = "repeat(" + cols + ", "+(colWidth - colOffset).toFixed(3)+"px)";
+   Container.style.gridTemplateRows = "repeat(" + rows + ", " + (rowHeight - rowOffset).toFixed(3) + "px)";
+
+   document.querySelectorAll('.piece').forEach((it, i, arr) => {
+     let ind = parseInt(it.id.replace(/[^0-9.]/g, ''));
+
+     if (it.style.backgroundImage === "") {
+       it.style.backgroundImage = "url('" + puzzleImages[imageInd].src + "')";
+     }
+     arr[ind].style.backgroundSize = Container.clientWidth + "px";
+     arr[ind].style.backgroundPosition = ((i%cols) * (-1 * (colWidth - colOffset))).toFixed(3) + "px " + (Math.floor(i/cols) * -1 * (rowHeight - rowOffset)).toFixed(3) + "px";
+    });
+  }
+
+
+  Container.addEventListener('click', (e)=>{
+    if(e.target.classList.contains('piece')) {
+      e.target.style.border = "2px solid gold";
+      if(parseInt(Container.getAttribute('data-clicks')) >= 1) {
+        if(parseInt(Container.getAttribute('data-clicks')) < 2) {
+          Container.removeAttribute('data-clicks');
+          swapChildNodes(Container, document.getElementById(Container.getAttribute('data-prevId')), e.target);
+        } else {
+          Container.removeAttribute('data-clicks');
+          Container.removeAttribute('data-prevId');
+        }
+      } else {
+        Container.setAttribute('data-clicks', '1');
+        Container.setAttribute('data-prevId', e.target.id);
+      }
+    }
+  });
+
+  function swapChildNodes(parent, n1, n2) {
+    n1.style.border = "none";
+    n2.style.border = "none";
+    let set = document.querySelectorAll('.piece');
+    let shiftedSet = [];
+    set.forEach((it, i) => {
+      if (it === n1) {
+
+        shiftedSet[i] = n2;
+      }
+      else if (it === n2) {
+
+        shiftedSet[i] = n1;
+      }
+      else {
+        shiftedSet[i] = it;
+      }
+    });
+    shiftedSet.forEach((it, i) => {
+      parent.appendChild(it);
+    });
+  }
+  </script>
+</body>
+</html>
